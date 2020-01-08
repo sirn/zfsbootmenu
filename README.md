@@ -142,6 +142,48 @@ As with the efibootmgr section, the `zfsbootmenu:POOL=` and `spl_hostid=` option
 
 This file will configure `rEFInd` to create two entries for each kernel and initrams pair it finds. The first will directly boot into the environment set via the `bootfs` pool property. The second will force ZFS Boot Menu to display an environment / kernel / snapshot selection menu, allowing you to boot alternate environments, kernels and snapshots. 
 
+## BIOS
+### syslinux/extlinux
+
+extlinux can be used to boot ZFS Boot Menu from an EXT4 partition. The deployment process is quit similiar to EFI integration in some respects.
+
+Create a partition of sufficient size on your drive (200M+), format it as EXT4 and mount it to `/boot/syslinux`. The appropriate legacy BIOS bootable flag needs to be set. 
+
+```
+$ sgdisk /dev/sdb --attributes=1:set:2
+The operation has completed successfully.
+# sgdisk /dev/sdb --attributes=1:show
+1:2:1 (legacy BIOS bootable)
+```
+
+Adjust the partition (=1) as needed.
+
+Install the syslinux MBR data.
+
+```
+# dd bs=440 count=1 conv=notrunc if=/usr/lib/syslinux/gptmbr.bin of=/dev/sdb
+1+0 records in
+1+0 records out
+440 bytes copied, 0.00234061 s, 188 kB/s
+```
+
+Adjust the target device (/dev/sdb) as needed.
+
+Copy the the required `.c32` files to `/boot/syslinux`.
+
+```
+# cp /usr/lib/syslinux/*.c32 /boot/syslinux
+```
+
+Set `Copies=3` in `/etc/zfsbootmenu/config.ini` under the `[syslinux]` section, and then run `generate-zbm`;
+
+```
+# generate-zbm
+Creating ZFS Boot Menu 0.7.7, with vmlinuz 5.4.7_1
+Found 0 existing images, allowed to have a total of 3
+Created /boot/syslinux/vmlinuz-0.7.7, /boot/syslinux/initramfs-0.7.7.img
+```
+
 # Command line options
 
 ZFS Boot Menu currently understands the following options:
