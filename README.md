@@ -158,6 +158,18 @@ The operation has completed successfully.
 
 Adjust the partition (=1) as needed.
 
+Copy the the required `.c32` files to `/boot/syslinux`.
+
+```
+# cp /usr/lib/syslinux/*.c32 /boot/syslinux
+```
+
+Install extlinux.
+```
+# extlinux --install /boot/syslinux
+/boot/syslinux is device /dev/sdb1
+```
+
 Install the syslinux MBR data.
 
 ```
@@ -169,11 +181,7 @@ Install the syslinux MBR data.
 
 Adjust the target device (/dev/sdb) as needed.
 
-Copy the the required `.c32` files to `/boot/syslinux`.
 
-```
-# cp /usr/lib/syslinux/*.c32 /boot/syslinux
-```
 
 Set `Copies=3` in `/etc/zfsbootmenu/config.ini` under the `[syslinux]` section, and then run `generate-zbm`;
 
